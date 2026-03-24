@@ -68,6 +68,63 @@ def _arrow(ax, x1, y1, x2, y2, color=ACCENT_HEX):
 
 # ── Diagram generators ──────────────────────────────────────────────────
 
+def make_full_architecture_diagram():
+    """Detailed component architecture matching the Mermaid diagram in README."""
+    fig, ax = plt.subplots(figsize=(10, 5.5), facecolor=BG_HEX)
+    ax.set_facecolor(BG_HEX); ax.set_xlim(0, 14); ax.set_ylim(0, 8); ax.axis("off")
+
+    # ── Event Sources (left) ──
+    ax.text(1.5, 7.4, "Event Sources", ha="center", color=GRAY_HEX, fontsize=10, fontstyle="italic")
+    _box(ax, 0.3, 6, 2.4, 1, "Log Simulator\nlog_simulator.py", GRAY_HEX, 9)
+
+    # ── Kafka (center-left) ──
+    ax.text(5, 7.4, "Message Bus", ha="center", color=ORANGE_HEX, fontsize=10, fontstyle="italic")
+    _box(ax, 3.5, 6, 3, 1, "Apache Kafka\nTopic: app-logs\nConfluent 7.6.0", ORANGE_HEX, 9)
+
+    # ── Streaming MCP Server (center) ──
+    ax.text(5, 5, "Streaming MCP Server", ha="center", color=ACCENT_HEX, fontsize=11, fontweight="bold")
+    # Server sub-components
+    _box(ax, 0.3, 3.2, 2.2, 0.9, "Kafka\nConsumer", ORANGE_HEX, 9)
+    _box(ax, 3.1, 3.2, 2.2, 0.9, "Anomaly\nDetection", BLUE_HEX, 9)
+    _box(ax, 5.9, 3.2, 2.2, 0.9, "WebSocket\nServer :8765", ACCENT_HEX, 9)
+    _box(ax, 8.7, 3.2, 2.2, 0.9, "Cedar Policy\nEngine", RED_HEX, 9)
+    # Server internal arrows
+    _arrow(ax, 2.6, 3.65, 3.0, 3.65, GRAY_HEX)
+    _arrow(ax, 5.4, 3.65, 5.8, 3.65, GRAY_HEX)
+    _arrow(ax, 8.2, 3.65, 8.6, 3.65, GRAY_HEX)
+    # Bounding box for server
+    ax.add_patch(FancyBboxPatch((0.1, 2.9), 11, 2.3, boxstyle="round,pad=0.2",
+                                facecolor="none", edgecolor=ACCENT_HEX, linewidth=1.5, linestyle="--"))
+
+    # ── AI Agent (right) ──
+    ax.text(12.5, 7.4, "AI Agent", ha="center", color=ACCENT_HEX, fontsize=10, fontstyle="italic")
+    _box(ax, 11.2, 6, 2.6, 1, "Subscribe\nto stream", ACCENT_HEX, 9)
+    _box(ax, 11.2, 1.5, 2.6, 0.9, "Remediation\nError -> Fix", ACCENT_HEX, 9)
+    _box(ax, 11.2, 0.2, 2.6, 0.9, "Sliding Window\n20-event monitor", BLUE_HEX, 9)
+
+    # ── Connecting arrows ──
+    # Simulator -> Kafka
+    _arrow(ax, 2.8, 6.5, 3.4, 6.5, ORANGE_HEX)
+    ax.text(3.1, 6.9, "produce", ha="center", color=ORANGE_HEX, fontsize=8)
+    # Kafka -> Consumer
+    _arrow(ax, 5, 6.0, 1.4, 4.2, ORANGE_HEX)
+    ax.text(2.5, 5.3, "consume", ha="center", color=ORANGE_HEX, fontsize=8)
+    # WebSocket -> Agent (push)
+    _arrow(ax, 8.2, 3.9, 11.1, 6.3, ACCENT_HEX)
+    ax.text(10, 5.5, "push: live\nevents", ha="center", color=ACCENT_HEX, fontsize=8)
+    # Agent -> WebSocket (pull)
+    _arrow(ax, 11.1, 1.9, 7.5, 3.2, BLUE_HEX)
+    ax.text(9, 2.2, "request:\nget_anomalies()", ha="center", color=BLUE_HEX, fontsize=8)
+    # Agent internal
+    _arrow(ax, 12.5, 6.0, 12.5, 2.5, GRAY_HEX)
+
+    # ── Legend ──
+    ax.text(0.3, 0.3, "push (streaming)", color=ACCENT_HEX, fontsize=9)
+    ax.text(3.3, 0.3, "pull (request/response)", color=BLUE_HEX, fontsize=9)
+    ax.text(6.8, 0.3, "Kafka produce/consume", color=ORANGE_HEX, fontsize=9)
+
+    return fig
+
 def make_stale_context_diagram():
     fig, ax = plt.subplots(figsize=(8, 3.5), facecolor=BG_HEX)
     ax.set_facecolor(BG_HEX); ax.set_xlim(0, 10); ax.set_ylim(0, 4); ax.axis("off")
@@ -218,6 +275,31 @@ SLIDES = [
          "- We'll walk through a working implementation using three open-source technologies: Apache Kafka for durable event streaming, WebSockets for real-time delivery, and Cedar for fine-grained authorization.\n"
          "- By the end, you'll see a live demo of an AI agent detecting and responding to a production incident in under 2 seconds — something impossible with traditional polling.\n"
          "- Everything we show today is open source and available in the repo."
+     )},
+    {"title": "System Architecture",
+     "bullets": [
+         "Log Simulator produces events to Kafka (app-logs topic)",
+         "MCP Server consumes from Kafka, maintains rolling window",
+         "Anomaly Detection tracks error rates server-side",
+         "WebSocket Server pushes live events to subscribed agents",
+         "Cedar Policy Engine enforces permit/forbid on every action",
+         "AI Agent subscribes, monitors 20-event sliding window",
+         "Remediation Engine maps error patterns to fix suggestions",
+         "Hybrid: push (streaming) + pull (get_anomalies) on same connection",
+     ], "diagram": make_full_architecture_diagram, "font_size": 16,
+     "notes": (
+         "TALKING POINTS:\n"
+         "- This is the full system architecture. Let me walk through each component.\n"
+         "- Starting on the left: the Log Simulator generates realistic application logs — INFO, WARN, ERROR, FATAL — from five simulated services: api-gateway, auth-service, payment-service, order-service, and inventory-db. Every ~30 seconds it triggers an error spike.\n"
+         "- Events flow into Apache Kafka (Confluent 7.6.0, running in KRaft mode via Docker). Kafka gives us durability, replayability, and decoupling between producers and consumers.\n"
+         "- The Streaming MCP Server is the core — it has four sub-components:\n"
+         "  1. Kafka Consumer: pulls events and maintains a rolling 100-event window for analysis.\n"
+         "  2. Anomaly Detection: tracks error counts by pattern (ConnectionRefused, OOM, Timeout, etc.) across the window.\n"
+         "  3. WebSocket Server on port 8765: pushes live events to all subscribed agents. Each subscriber gets a bounded 500-event queue — if they fall behind, oldest events are dropped.\n"
+         "  4. Cedar Policy Engine: evaluates every agent request against declarative permit/forbid policies. Default deny — no matching policy means the request is blocked.\n"
+         "- On the right: the AI Agent. It subscribes once and receives a continuous stream. It runs a 20-event sliding window — when error rate exceeds 30%, it flags an anomaly. It can also send get_anomalies() back to the server for a structured summary — that's the hybrid protocol, push AND pull on the same WebSocket.\n"
+         "- The Remediation Engine maps known error patterns to actionable fixes: ConnectionRefused → check service status; OOM → increase heap; Timeout → circuit breaker; Deadlock → review isolation levels.\n"
+         "- Notice the two arrow colors: teal for streaming push, blue for request/response pull. Both coexist on the same connection. This is the key design insight."
      )},
     {"title": "The Stale Context Problem",
      "bullets": [
