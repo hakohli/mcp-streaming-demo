@@ -6,6 +6,48 @@ Instead of the traditional request/response MCP model where agents poll for stal
 
 ## Architecture
 
+```mermaid
+graph TB
+    subgraph Event Sources
+        LS[log_simulator.py<br/>Generates realistic<br/>app logs + error spikes]
+    end
+
+    subgraph Message Bus
+        K[Apache Kafka<br/>Topic: app-logs<br/>Confluent 7.6.0 / KRaft]
+    end
+
+    subgraph Streaming MCP Server
+        KC[Kafka Consumer<br/>Rolling 100-event window]
+        AD[Anomaly Detection<br/>Error rate tracking]
+        WS[WebSocket Server<br/>Port 8765]
+        CE[Cedar Policy Engine<br/>permit / forbid rules]
+        KC --> AD
+        KC --> WS
+        CE --> WS
+    end
+
+    subgraph AI Agent
+        SUB[Subscribe to stream]
+        MON[Sliding window monitor<br/>20-event error rate]
+        FIX[Remediation engine<br/>Error → fix mapping]
+        SUB --> MON --> FIX
+    end
+
+    LS -- produce --> K
+    K -- consume --> KC
+    WS -- "push: live events" --> SUB
+    MON -- "request: get_anomalies()" --> WS
+    WS -- "response: anomaly summary" --> MON
+
+    style K fill:#FF8C00,color:#fff
+    style WS fill:#00D4AA,color:#000
+    style CE fill:#FF4444,color:#fff
+    style AD fill:#4488FF,color:#fff
+    style FIX fill:#00D4AA,color:#000
+```
+
+### Data Flow
+
 ```
 log_simulator.py → Kafka (app-logs) → streaming_mcp_server.py → agent_client.py
                                               ↕ WebSocket
