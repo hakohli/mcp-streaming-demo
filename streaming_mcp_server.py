@@ -26,9 +26,9 @@ class LogStreamConsumer:
         self.consumer.subscribe([topic])
         self.subscribers: Set[asyncio.Queue] = set()
         self.recent: deque = deque(maxlen=100)  # rolling window for anomaly detection
-        self.error_counts: dict[str, int] = {}  # error pattern tracking
+        self.error_counts: Dict[str, int] = {}  # error pattern tracking
 
-    def poll(self) -> dict | None:
+    def poll(self) -> Optional[dict]:
         msg = self.consumer.poll(0.1)
         if msg is None or msg.error():
             return None
