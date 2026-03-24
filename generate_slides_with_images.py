@@ -210,7 +210,7 @@ def make_takeaways_diagram():
 # ── Slide definitions ────────────────────────────────────────────────────
 SLIDES = [
     {"title": "MCP Live:\nStreaming Context to AI Agents",
-     "subtitle": "Building Reactive MCP Servers with Kafka, WebSockets & Cedar", "type": "title",
+     "subtitle": "Building Reactive MCP Servers with Kafka, WebSockets & Cedar\ngithub.com/hakohli/mcp-streaming-demo", "type": "title",
      "notes": (
          "TALKING POINTS:\n"
          "- Welcome everyone. Today we're going to talk about extending the Model Context Protocol — MCP — beyond its traditional request/response model.\n"
@@ -306,11 +306,12 @@ SLIDES = [
      ], "diagram": make_demo_flow_diagram,
      "notes": (
          "TALKING POINTS:\n"
-         "- Time for the live demo. Here's what's running: a log simulator generates realistic application logs and pushes them to Kafka. The streaming MCP server consumes from Kafka and pushes to connected agents.\n"
+         "- Time for the live demo. Stack: Confluent Kafka 7.6.0 in Docker, Python 3.9, confluent-kafka 2.13.2, websockets 15.0.1.\n"
+         "- Here's what's running: a log simulator generates realistic application logs and pushes them to Kafka. The streaming MCP server consumes from Kafka and pushes to connected agents.\n"
          "- We'll see normal traffic flowing first — INFO and DEBUG level logs streaming through in real-time.\n"
          "- Then we'll trigger an error spike — simulating a production incident like a database connection failure.\n"
-         "- Watch the agent: within 1 second of the error spike, it detects the anomaly. It then queries the server for a structured anomaly summary — this is the hybrid protocol in action.\n"
-         "- The agent automatically maps error patterns to fix suggestions: 'ConnectionError → restart service', 'OutOfMemoryError → increase heap size'.\n"
+         "- Watch the agent: it detected '🚨 ANOMALY DETECTED — error rate 60% in last 20 events' — within 1 second of the spike.\n"
+         "- The agent automatically suggested fixes: ConnectionRefused → check service status; OutOfMemoryError → increase JVM heap; Timeout → add circuit breaker; Deadlock → review transaction isolation.\n"
          "- We'll also show Cedar in action: try subscribing with an unauthorized agent and watch it get denied.\n"
          "- End-to-end latency from error occurrence to fix suggestion: under 2 seconds."
      )},
@@ -368,9 +369,10 @@ SLIDES = [
     {"title": "Key Takeaways",
      "bullets": [
          "MCP doesn't have to be request/response only",
-         "Kafka + WebSocket = durable, scalable streaming bridge",
-         "Cedar provides declarative, auditable authorization",
+         "Kafka (Confluent 7.6.0) + WebSocket = durable, scalable streaming bridge",
+         "Cedar provides declarative, auditable authorization for MCP",
          "Hybrid protocol (push + pull) on single connection is the sweet spot",
+         "All open source — Python 3.9+, Docker, ~200 lines of code",
      ], "diagram": make_takeaways_diagram,
      "notes": (
          "TALKING POINTS:\n"
@@ -382,12 +384,12 @@ SLIDES = [
          "- The diagram shows how these three pieces converge into the streaming MCP server. Each solves a different problem; together they create something powerful."
      )},
     {"title": "Thank You & Q&A",
-     "subtitle": "Code: ~/mcp-streaming-demo\nAll open source: Kafka · Cedar · WebSockets", "type": "title",
+     "subtitle": "github.com/hakohli/mcp-streaming-demo\nAll open source: Kafka · Cedar · WebSockets · Python", "type": "title",
      "notes": (
          "TALKING POINTS:\n"
-         "- Thank you for your time. The complete working code is in the mcp-streaming-demo repo.\n"
-         "- Everything is open source: Kafka, Cedar, WebSockets, and all the Python code.\n"
-         "- To run the demo yourself: docker-compose up for Kafka, then run the streaming MCP server, log simulator, and agent client.\n"
+         "- Thank you for your time. The complete working code is on GitHub: github.com/hakohli/mcp-streaming-demo\n"
+         "- Everything is open source: Confluent Kafka 7.6.0, Cedar, WebSockets 15.0.1, Python 3.9+.\n"
+         "- To run the demo yourself: docker compose up -d for Kafka, then run streaming_mcp_server.py, log_simulator.py, and agent_client.py.\n"
          "- Happy to take questions on the architecture, Cedar policies, Kafka integration, or anything else.\n"
          "- If you're interested in contributing or extending this — for example, adding SSE transport, multi-topic subscriptions, or persistent agent state — let's talk."
      )},
