@@ -70,8 +70,6 @@ log_simulator.py → Kafka (app-logs) → streaming_mcp_server.py → agent_clie
 | Apache Kafka | 7.6.0 (Confluent) | Durable event streaming bus |
 | confluent-kafka (Python) | 2.13.2 | Kafka producer/consumer client |
 | websockets (Python) | 15.0.1 | WebSocket server & client |
-| python-pptx (Python) | 1.0.2 | Presentation slide generation |
-| matplotlib (Python) | 3.9+ | Diagram generation for slides |
 | Cedar | — | Authorization policy language (embedded) |
 
 ## Demo Setup (run in order)
@@ -154,22 +152,6 @@ PYTHONUNBUFFERED=1 python agent_client.py
 | `mock_kafka.py` | In-process mock Kafka for testing without Docker |
 | `test_integration.py` | Integration tests |
 | `docker-compose.yml` | Kafka (Confluent cp-kafka 7.6.0, KRaft mode) |
-| `generate_slides.py` | Original presentation slide generator |
-| `generate_slides_with_images.py` | Enhanced generator with diagrams + speaker notes |
-| `MCP_Live_Streaming_Context.pptx` | Presentation with 12 slides, embedded diagrams, and detailed talking points |
-
-## Presentation
-
-The `MCP_Live_Streaming_Context.pptx` includes:
-- 12 slides covering the problem, architecture, protocol, Cedar auth, demo, production patterns, and use cases
-- Embedded matplotlib diagrams (architecture flow, sequence diagrams, anomaly charts, use case maps)
-- Detailed speaker notes with talking points for each slide
-
-To regenerate:
-```bash
-pip install python-pptx matplotlib
-python generate_slides_with_images.py
-```
 
 ## Teardown
 
