@@ -105,6 +105,26 @@ python agent_client.py
 ```
 The agent subscribes to the live stream and begins monitoring.
 
+### 5b. Interactive Agent (alternative)
+```bash
+python agent_client_interactive.py
+```
+Same as above, but you can type commands while events stream:
+- `anomalies` — query the server for anomaly summary
+- `context` — get current server context
+- `status` — show local event count and error window
+- `help` — list commands
+- `quit` — exit
+
+### Quick Start (tmux)
+Run all components in one command:
+```bash
+tmux new-session -s mcp -d 'PYTHONUNBUFFERED=1 python3 streaming_mcp_server.py' \; \
+  split-window -h 'sleep 2 && PYTHONUNBUFFERED=1 python3 log_simulator.py' \; \
+  split-window -v 'sleep 4 && PYTHONUNBUFFERED=1 python3 agent_client_interactive.py' \; \
+  attach
+```
+
 ### Tip: Unbuffered Output
 If output appears delayed, use `PYTHONUNBUFFERED=1`:
 ```bash
@@ -128,6 +148,7 @@ PYTHONUNBUFFERED=1 python agent_client.py
 | `streaming_mcp_server.py` | Core streaming MCP server — Kafka consumer + WebSocket push |
 | `streaming_mcp_server_cedar.py` | Server variant with Cedar authorization |
 | `agent_client.py` | AI agent — subscribes, detects anomalies, suggests fixes |
+| `agent_client_interactive.py` | Interactive agent — same as above + accepts user commands mid-stream |
 | `log_simulator.py` | Produces realistic log events to Kafka |
 | `cedar_authz.py` | Cedar policy engine for MCP action authorization |
 | `mock_kafka.py` | In-process mock Kafka for testing without Docker |
